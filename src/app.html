@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="utf-8" />
+		<!-- LICENSE covers this Open WebUI branding surface, including name, logo,
+		visual, textual, symbolic identifiers, metadata, and surrounding UI.
+		Do not alter, remove, obscure, or replace it except as LICENSE permits:
+		https://docs.openwebui.com/license. -->
+		<link
+			rel="icon"
+			type="image/x-icon"
+			href="/static/favicon.ico"
+			crossorigin="use-credentials"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			href="/static/favicon-96x96.png"
+			sizes="96x96"
+			crossorigin="use-credentials"
+		/>
+		<link
+			rel="icon"
+			type="image/png"
+			href="/static/favicon.png"
+			crossorigin="use-credentials"
+		/>
+		<link rel="shortcut icon" href="/static/favicon.ico" crossorigin="use-credentials" />
+		<link
+			rel="apple-touch-icon"
+			sizes="180x180"
+			href="/static/apple-touch-icon.png"
+			crossorigin="use-credentials"
+		/>
+		<link rel="manifest" href="/manifest.json" crossorigin="use-credentials" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+		/>
+		<meta name="theme-color" content="#171717" />
+		<meta name="robots" content="noindex,nofollow" />
+
+		<script src="/static/loader.js" defer crossorigin="use-credentials"></script>
+		<script src="/devtools-guard.js" defer crossorigin="use-credentials"></script>
+		<link rel="stylesheet" href="/static/custom.css?v=2" crossorigin="use-credentials" />
+
+		<script>
+			function resizeIframe(obj) {
+				obj.style.height = obj.contentWindow.document.documentElement.scrollHeight + 'px';
+			}
+		</script>
+
+		<script>
+			// On page load or when changing themes, best to add inline in `head` to avoid FOUC
+			(() => {
+				const metaThemeColorTag = document.querySelector('meta[name="theme-color"]');
+				const prefersDarkTheme = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+				if (!localStorage?.theme) {
+					localStorage.theme = 'dark';
+				}
+
+				if (localStorage.theme === 'system') {
+					document.documentElement.classList.add(prefersDarkTheme ? 'dark' : 'light');
+					metaThemeColorTag.setAttribute('content', prefersDarkTheme ? '#171717' : '#ffffff');
+				} else if (localStorage.theme === 'oled-dark') {
+					document.documentElement.style.setProperty('--color-gray-800', '#101010');
+					document.documentElement.style.setProperty('--color-gray-850', '#050505');
+					document.documentElement.style.setProperty('--color-gray-900', '#000000');
+					document.documentElement.style.setProperty('--color-gray-950', '#000000');
+					document.documentElement.classList.add('dark');
+					metaThemeColorTag.setAttribute('content', '#000000');
+				} else if (localStorage.theme === 'light') {
+					document.documentElement.classList.add('light');
+					metaThemeColorTag.setAttribute('content', '#ffffff');
+				} else if (localStorage.theme === 'her') {
+					document.documentElement.classList.add('her');
+					metaThemeColorTag.setAttribute('content', '#983724');
+				} else {
+					document.documentElement.classList.add('dark');
+					metaThemeColorTag.setAttribute('content', '#171717');
+				}
+
+				// LICENSE covers these Open WebUI splash logo assets.
+				// Do not alter, remove, obscure, or replace them except as LICENSE permits:
+				// https://docs.openwebui.com/license.
+				const preloadHref = '/static/minghat-mark.png';
+				const preload = document.createElement('link');
+				preload.rel = 'preload';
+				preload.as = 'image';
+				preload.href = preloadHref;
+				preload.setAttribute('fetchpriority', 'high');
+				document.head.appendChild(preload);
+
+				window.matchMedia('(prefers-color-scheme: dark)').addListener((e) => {
+					if (localStorage.theme === 'system') {
+						if (e.matches) {
+							document.documentElement.classList.add('dark');
+							document.documentElement.classList.remove('light');
+							metaThemeColorTag.setAttribute('content', '#171717');
+						} else {
+							document.documentElement.classList.add('light');
+							document.documentElement.classList.remove('dark');
+							metaThemeColorTag.setAttribute('content', '#ffffff');
+						}
+					}
+				});
+				const isDarkMode = document.documentElement.classList.contains('dark');
+
+				const logo = document.createElement('img');
+				logo.id = 'logo';
+				logo.style =
+					'position: absolute; width: auto; height: 6rem; top: 44%; left: 50%; transform: translateX(-50%); display:block;';
+				logo.loading = 'eager';
+				logo.fetchPriority = 'high';
+				// LICENSE covers this Open WebUI splash logo.
+				// Do not alter, remove, obscure, or replace it except as LICENSE permits:
+				// https://docs.openwebui.com/license.
+				logo.src = '/static/minghat-mark.png';
+
+				document.addEventListener('DOMContentLoaded', function () {
+					const splash = document.getElementById('splash-screen');
+					if (document.documentElement.classList.contains('her')) {
+						return;
+					}
+
+					if (splash) splash.prepend(logo);
+				});
+			})();
+		</script>
+
+		<title>BlackHat</title>
+
+		%sveltekit.head%
+	</head>
+
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+
+		<div
+			id="splash-screen"
+			style="position: fixed; z-index: 100; top: 0; left: 0; width: 100%; height: 100%"
+		>
+			<style type="text/css" nonce="">
+				html {
+					overflow-y: scroll !important;
+				}
+			</style>
+
+			<div
+				style="
+					position: absolute;
+					top: 33%;
+					left: 50%;
+
+					width: 24rem;
+					transform: translateX(-50%);
+
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+				"
+			>
+				<!-- LICENSE covers this Open WebUI splash logo.
+				Do not alter, remove, obscure, or replace it except as LICENSE permits:
+				https://docs.openwebui.com/license. -->
+				<img
+					id="logo-her"
+					style="width: auto; height: 13rem"
+					src="/static/splash.png"
+					loading="eager"
+					fetchpriority="high"
+					class="animate-pulse-fast"
+				/>
+
+				<div style="position: relative; width: 24rem; margin-top: 0.5rem">
+					<div
+						id="progress-background"
+						style="
+							position: absolute;
+							width: 100%;
+							height: 0.75rem;
+
+							border-radius: 9999px;
+							background-color: #fafafa9a;
+						"
+					></div>
+
+					<div
+						id="progress-bar"
+						style="
+							position: absolute;
+							width: 0%;
+							height: 0.75rem;
+							border-radius: 9999px;
+							background-color: #fff;
+						"
+						class="bg-white"
+					></div>
+				</div>
+			</div>
+
+			<!-- <span style="position: absolute; bottom: 32px; left: 50%; margin: -36px 0 0 -36px">
+				Footer content
+			</span> -->
+		</div>
+	</body>
+
+	<style type="text/css" nonce="">
+		html {
+			overflow-y: hidden !important;
+			overscroll-behavior-y: none;
+		}
+
+		#splash-screen {
+			background: #fff;
+		}
+
+		html.dark #splash-screen {
+			background: #000;
+		}
+
+		/* MingHat: piscantes neon roxo na tela de carregamento */
+		html.dark #splash-screen::before,
+		html.dark #splash-screen::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+			z-index: 0;
+			background-repeat: no-repeat;
+		}
+		html.dark #splash-screen::before {
+			background-image:
+				radial-gradient(circle 4.8px at 6% 14%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 1.9px at 15% 60%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 2.8px at 24% 30%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 4.2px at 33% 78%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 1.8px at 41% 12%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 2.8px at 48% 52%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 5.0px at 63% 26%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 2.0px at 72% 66%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 2.8px at 80% 10%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 4.4px at 86% 44%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 1.8px at 92% 78%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 2.8px at 97% 32%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 1.9px at 19% 45%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 3.0px at 55% 40%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 4.0px at 69% 84%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 1.8px at 35% 20%, rgba(206,170,255,0.9), transparent 70%);
+			animation: splash-twinkle-a 10s ease-in-out infinite;
+		}
+		html.dark #splash-screen::after {
+			background-image:
+				radial-gradient(circle 2.0px at 11% 34%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 4.8px at 21% 82%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 2.8px at 30% 50%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 1.9px at 45% 84%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 4.4px at 52% 38%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 2.8px at 66% 14%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 5.0px at 75% 82%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 1.8px at 83% 58%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 2.8px at 89% 24%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 2.0px at 58% 62%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 4.4px at 38% 20%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 2.8px at 95% 90%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 1.8px at 14% 22%, rgba(206,170,255,0.9), transparent 70%),
+				radial-gradient(circle 3.0px at 48% 66%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+				radial-gradient(circle 4.2px at 78% 40%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+				radial-gradient(circle 1.9px at 28% 8%, rgba(206,170,255,0.9), transparent 70%);
+			animation: splash-twinkle-b 12s ease-in-out infinite;
+		}
+		@keyframes splash-twinkle-a {
+			0%, 100% { opacity: 0.28; transform: translate3d(0, 0, 0); }
+			50% { opacity: 0.8; transform: translate3d(20px, -16px, 0); }
+		}
+		@keyframes splash-twinkle-b {
+			0%, 100% { opacity: 1; transform: translate3d(0, 0, 0); }
+			50% { opacity: 0.35; transform: translate3d(-20px, 16px, 0); }
+		}
+
+		html.her #splash-screen {
+			background: #983724;
+		}
+
+		#logo-her {
+			display: none;
+		}
+
+		#progress-background {
+			display: none;
+		}
+
+		#progress-bar {
+			display: none;
+		}
+
+		html.her #logo {
+			display: none;
+		}
+
+		html.her #logo-her {
+			display: block;
+			filter: invert(1);
+		}
+
+		html.her #progress-background {
+			display: block;
+		}
+
+		html.her #progress-bar {
+			display: block;
+		}
+
+		@media (max-width: 24rem) {
+			html.her #progress-background {
+				display: none;
+			}
+
+			html.her #progress-bar {
+				display: none;
+			}
+		}
+
+		@keyframes pulse {
+			50% {
+				opacity: 0.65;
+			}
+		}
+
+		.animate-pulse-fast {
+			animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+		}
+	</style>
+</html>

@@ -1,0 +1,517 @@
+/* MingHat: local chat workspace. */
+html.dark {
+	--color-gray-400: #aaa8b7;
+	--color-gray-500: #92909f;
+	--color-gray-600: #777381;
+	--color-gray-700: #3c3747;
+	--color-gray-800: #25212d;
+	--color-gray-850: #1a1720;
+	--color-gray-900: #0d0d12;
+	--color-gray-950: #09090d;
+	--neon-purple: #c29aff;
+	--neon-border: #4a365f;
+	--neon-gradient: linear-gradient(120deg, #7735d0, #9145de 70%, #ab4bc7);
+	--minghat-text: #f4f1fa;
+	--minghat-muted: #aaa8b7;
+	--minghat-line: #292431;
+	--minghat-display: 'Segoe UI Variable Display', 'Segoe UI', 'Inter', sans-serif;
+	color-scheme: dark;
+}
+
+html.dark body {
+	background: #09090d;
+	letter-spacing: 0;
+}
+
+html.dark #chat-pane {
+	background:
+		url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20width%3D%27320%27%20height%3D%27320%27%20viewBox%3D%270%200%20320%20320%27%3E%3Cg%20fill%3D%27none%27%20stroke%3D%27rgba%28194%2C154%2C255%2C0.07%29%27%20stroke-width%3D%271.4%27%20stroke-linecap%3D%27round%27%3E%3Cpath%20d%3D%27M42%2060l6%2022%27%2F%3E%3Cpath%20d%3D%27M50%2057l5%2025%27%2F%3E%3Cpath%20d%3D%27M58%2060l6%2022%27%2F%3E%3Cpath%20d%3D%27M220%2044l-14%2026l8%2011%27%2F%3E%3Cpath%20d%3D%27M120%20176l10%2022%27%2F%3E%3Cpath%20d%3D%27M129%20172l9%2024%27%2F%3E%3Cpath%20d%3D%27M262%20214l-16%2026%27%2F%3E%3Cpath%20d%3D%27M270%20210l-15%2027%27%2F%3E%3Cpath%20d%3D%27M64%20236l12%2018l-4%2012%27%2F%3E%3Cpath%20d%3D%27M182%20262l6%2022%27%2F%3E%3Cpath%20d%3D%27M190%20259l5%2024%27%2F%3E%3Cpath%20d%3D%27M198%20262l6%2022%27%2F%3E%3Cpath%20d%3D%27M300%2092l-12%2020%27%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E") repeat,
+		linear-gradient(145deg, #1a1027 0%, #0d0d12 37%, #0d0d12 80%, #16101e);
+	background-size: 320px 320px, auto;
+	background-attachment: fixed, scroll;
+}
+
+html.dark .user-message .dark\:bg-gray-850 {
+	background: linear-gradient(120deg, #30203e, #211b2b);
+	border: 1px solid #493354;
+}
+
+html.dark #sidebar {
+	background: linear-gradient(175deg, #15101e, #0b0b10 48%, #100d16) !important;
+	border-right: 1px solid var(--minghat-line);
+}
+
+html.dark #sidebar .sidebar {
+	min-height: 76px;
+	padding: 18px 10px;
+	margin-bottom: 0;
+}
+
+html.dark #sidebar-webui-name {
+	font: 600 23px/1.2 var(--minghat-display);
+	color: var(--minghat-text);
+}
+
+html.dark .sidebar-new-chat-icon {
+	width: 32px;
+	height: 32px;
+	border-radius: 0;
+	object-fit: contain;
+}
+
+html.dark #sidebar :is(#sidebar-search-button, #sidebar-notes-button, #sidebar-workspace-button) {
+	min-height: 42px;
+	padding-inline: 12px;
+	border-radius: 8px;
+}
+
+html.dark #sidebar :is(#sidebar-new-chat-button, #sidebar-search-button, #pinned-menu-items-list) {
+	margin-inline: 5px;
+}
+
+html.dark #sidebar-new-chat-button {
+	background: var(--neon-gradient);
+	color: #fff;
+	border: 1px solid #b079e688;
+	border-radius: 8px;
+	min-height: 44px;
+	padding-inline: 12px;
+	box-shadow: inset 0 1px 0 #e5caff20, 0 4px 18px #7e22ce20;
+}
+
+html.dark #sidebar-new-chat-button:hover {
+	filter: brightness(1.12);
+}
+
+html.dark .minghat-navbar {
+	min-height: 60px;
+	padding: 10px 12px;
+	background: #0d0d12ee;
+	border-bottom: 1px solid #ffffff06;
+}
+
+html.dark .minghat-navbar button:not(#new-chat-button) {
+	min-width: 36px;
+	min-height: 36px;
+}
+
+.minghat-connection {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+	padding-inline: 8px;
+	font-size: 12px;
+	color: #9d97a7;
+	white-space: nowrap;
+}
+
+.minghat-connection-dot {
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	background: #cfaa71;
+}
+
+.minghat-connection.connected .minghat-connection-dot {
+	background: #75ddb5;
+}
+
+.minghat-home {
+	max-width: 860px;
+	padding: 96px 32px 64px;
+}
+
+.minghat-welcome {
+	margin-bottom: 22px;
+	font-family: var(--minghat-display, 'Segoe UI', sans-serif);
+}
+
+.minghat-welcome h1 {
+	font-size: 44px;
+	font-weight: 650;
+	line-height: 1.12;
+	letter-spacing: 0;
+	color: #f4f1fa;
+}
+
+.minghat-welcome h1 span {
+	color: #c29aff;
+}
+
+.minghat-welcome p {
+	margin-top: 14px;
+	font-size: 20px;
+	font-weight: 400;
+	line-height: 1.5;
+	color: #aaa8b7;
+}
+
+html.dark #message-input-container {
+	background: linear-gradient(125deg, #1e1629, #15131c 65%, #18131f) !important;
+	border: 1px solid var(--neon-border);
+	border-radius: 16px;
+	box-shadow: 0 6px 32px #00000025, inset 0 1px 0 #e0baff0a;
+	transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+html.dark #message-input-container:focus-within {
+	border-color: #aa78e7;
+	box-shadow: 0 0 0 1px #aa78e71c, 0 8px 38px #9250d51c;
+}
+
+.minghat-home #chat-input-container {
+	min-height: 86px;
+	padding: 15px 12px 6px;
+}
+
+html.dark #message-input-container :is(#input-menu-button, #voice-input-button, #integration-menu-button) {
+	min-width: 36px;
+	min-height: 36px;
+	border-radius: 8px;
+}
+
+html.dark #send-message-button {
+	min-width: 36px;
+	min-height: 36px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+html.dark #send-message-button:not(:disabled) {
+	background: var(--neon-gradient) !important;
+	color: #fff !important;
+	box-shadow: 0 0 14px #a855f73d;
+}
+
+.minghat-prompts {
+	display: grid;
+	width: calc(100% - 16px);
+	max-width: calc(48rem - 16px);
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: 12px;
+	margin: 16px auto 0;
+}
+
+.minghat-prompt {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	min-width: 0;
+	min-height: 116px;
+	padding: 16px;
+	border: 1px solid #2b2533;
+	border-radius: 8px;
+	background: #15121980;
+	text-align: left;
+	transition: border-color 160ms ease, background 160ms ease;
+}
+
+.minghat-prompt:hover {
+	border-color: #756185;
+	background: #211829;
+}
+
+.minghat-prompt:active {
+	background: #302139;
+}
+
+.minghat-prompt-icon {
+	display: flex;
+	margin-bottom: 14px;
+}
+
+.minghat-accent-violet .minghat-prompt-icon { color: #c29aff; }
+.minghat-accent-blue .minghat-prompt-icon { color: #88bffa; }
+.minghat-accent-mint .minghat-prompt-icon { color: #75ddb5; }
+.minghat-accent-amber .minghat-prompt-icon { color: #dec18d; }
+.minghat-accent-rose .minghat-prompt-icon { color: #f4a3b1; }
+
+/* Card de exemplo de recon: ocupa a largura toda, abaixo dos demais. */
+.minghat-prompt-recon {
+	grid-column: 1 / -1;
+	min-height: 0;
+	border-color: #5a2b3a;
+	background: #1c1418cc;
+}
+.minghat-prompt-recon:hover {
+	border-color: #a15068;
+	background: #241820;
+}
+
+.minghat-prompt-title {
+	font-size: 14px;
+	font-weight: 550;
+	line-height: 1.5;
+	color: #eeeaf5;
+}
+
+.minghat-prompt-detail {
+	margin-top: 3px;
+	font-size: 12px;
+	line-height: 1.5;
+	color: #aaa8b7;
+}
+
+html.light .minghat-welcome h1,
+html.light .minghat-prompt-title {
+	color: #24182e;
+}
+
+html.light .minghat-welcome h1 span {
+	color: #7735c1;
+}
+
+html.light .minghat-welcome p,
+html.light .minghat-prompt-detail {
+	color: #675773;
+}
+
+html.light .minghat-prompt {
+	background: #faf7ff;
+	border-color: #d8cce5;
+}
+
+html.dark :is(button, a, input, textarea, select, [tabindex]):not([contenteditable='true']):focus-visible {
+	outline: 2px solid var(--neon-purple) !important;
+	outline-offset: 3px;
+}
+
+html.dark ::selection {
+	background: #7135a8;
+	color: #fff;
+}
+
+html.dark :is(.prose a, .markdown a) {
+	color: #d8b4fe;
+}
+
+html.dark #chat-input {
+	caret-color: var(--neon-purple);
+}
+
+html.dark #send-message-button:disabled {
+	opacity: 0.4;
+	box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	html.dark #message-input-container,
+	.minghat-prompt {
+		transition: none;
+	}
+}
+
+@media (max-width: 640px) {
+	.minghat-home {
+		padding: 84px 16px 32px;
+	}
+	.minghat-prompts {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		gap: 10px;
+	}
+	.minghat-prompt {
+		min-height: 112px;
+		padding: 14px;
+	}
+	.minghat-connection {
+		display: none;
+	}
+	.minghat-composer-tools {
+		flex: 1;
+		min-width: 100px;
+	}
+	.minghat-composer-toolbar {
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 4px;
+	}
+	.minghat-composer-actions {
+		display: contents;
+	}
+	.minghat-composer-model {
+		order: -1;
+		flex: 0 0 100%;
+		max-width: 100%;
+		padding-bottom: 4px;
+		margin-bottom: 4px;
+		border-bottom: 1px solid #75618533;
+	}
+	.minghat-composer-actions > :not(.minghat-composer-model) {
+		margin-inline: 0 !important;
+	}
+	html.dark .minghat-navbar {
+		padding: 8px;
+	}
+	html.dark .minghat-navbar button:not(#new-chat-button),
+	html.dark #message-input-container :is(#input-menu-button, #voice-input-button, #integration-menu-button, #send-message-button) {
+		min-width: 44px;
+		min-height: 44px;
+	}
+}
+
+
+/* ===== MingHat: legibilidade do chat ===== */
+html.dark .markdown-prose {
+	font-size: 15.5px;
+	line-height: 1.72;
+	color: #e9e6f2;
+}
+html.dark .markdown-prose p {
+	margin: 0.7em 0;
+}
+html.dark .markdown-prose :is(h1, h2, h3, h4) {
+	color: #f4f1fa;
+	font-weight: 700;
+	line-height: 1.25;
+	margin: 1.15em 0 0.5em;
+}
+html.dark .markdown-prose h1 { font-size: 1.5em; }
+html.dark .markdown-prose h2 { font-size: 1.3em; }
+html.dark .markdown-prose h3 { font-size: 1.12em; }
+html.dark .markdown-prose :is(ul, ol) {
+	margin: 0.6em 0;
+	padding-left: 1.4em;
+}
+html.dark .markdown-prose li {
+	margin: 0.3em 0;
+}
+html.dark .markdown-prose li::marker {
+	color: #c29aff;
+}
+html.dark .markdown-prose blockquote {
+	border-left: 3px solid #c29aff;
+	margin: 0.85em 0;
+	padding: 0.2em 0 0.2em 1em;
+	color: #b9b5c7;
+	background: rgba(194, 154, 255, 0.05);
+	border-radius: 0 8px 8px 0;
+}
+html.dark .markdown-prose :not(pre) > code {
+	background: #221c2e;
+	color: #e9d8ff;
+	padding: 0.15em 0.4em;
+	border-radius: 6px;
+	font-size: 0.9em;
+	border: 1px solid #2f2740;
+}
+html.dark .markdown-prose pre {
+	background: #0e0c14 !important;
+	border: 1px solid #2a2634;
+	border-radius: 12px;
+	padding: 14px 16px !important;
+	margin: 0.9em 0;
+	overflow-x: auto;
+	line-height: 1.55;
+}
+html.dark .markdown-prose pre code {
+	background: transparent !important;
+	border: 0 !important;
+	padding: 0 !important;
+	font-size: 13.5px;
+}
+html.dark .markdown-prose table {
+	display: block;
+	width: max-content;
+	max-width: 100%;
+	overflow-x: auto;
+	border-collapse: collapse;
+	margin: 0.9em 0;
+	font-size: 14px;
+}
+html.dark .markdown-prose :is(th, td) {
+	border: 1px solid #2a2634;
+	padding: 8px 12px;
+	text-align: left;
+}
+html.dark .markdown-prose th {
+	background: #1c1826;
+	color: #f4f1fa;
+	font-weight: 600;
+}
+html.dark .markdown-prose tr:nth-child(even) td {
+	background: rgba(255, 255, 255, 0.02);
+}
+html.dark .markdown-prose hr {
+	border: 0;
+	border-top: 1px solid #2a2634;
+	margin: 1.2em 0;
+}
+html.dark .markdown-prose img {
+	border-radius: 10px;
+}
+
+/* ===== MingHat: piscantes neon roxo no fundo do chat ===== */
+html.dark #chat-pane {
+	position: relative;
+}
+html.dark #chat-pane::before,
+html.dark #chat-pane::after {
+	content: "";
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background-repeat: no-repeat;
+	will-change: opacity, transform;
+}
+html.dark #chat-pane::before {
+	background-image:
+		radial-gradient(circle 4.8px at 6% 14%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 1.9px at 15% 60%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 2.8px at 24% 30%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 4.2px at 33% 78%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 1.8px at 41% 12%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 2.8px at 48% 52%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 5.0px at 63% 26%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 2.0px at 72% 66%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 2.8px at 80% 10%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 4.4px at 86% 44%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 1.8px at 92% 78%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 2.8px at 97% 32%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 1.9px at 19% 45%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 3.0px at 55% 40%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 4.0px at 69% 84%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 1.8px at 35% 20%, rgba(206,170,255,0.9), transparent 70%);
+	animation: minghat-twinkle-a 10s ease-in-out infinite;
+}
+html.dark #chat-pane::after {
+	background-image:
+		radial-gradient(circle 2.0px at 11% 34%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 4.8px at 21% 82%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 2.8px at 30% 50%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 1.9px at 45% 84%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 4.4px at 52% 38%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 2.8px at 66% 14%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 5.0px at 75% 82%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 1.8px at 83% 58%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 2.8px at 89% 24%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 2.0px at 58% 62%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 4.4px at 38% 20%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 2.8px at 95% 90%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 1.8px at 14% 22%, rgba(206,170,255,0.9), transparent 70%),
+		radial-gradient(circle 3.0px at 48% 66%, rgba(206,170,255,0.96), rgba(139,92,246,0.3) 45%, transparent 76%),
+		radial-gradient(circle 4.2px at 78% 40%, rgba(216,188,255,1) 0%, rgba(139,92,246,0.6) 40%, transparent 80%),
+		radial-gradient(circle 1.9px at 28% 8%, rgba(206,170,255,0.9), transparent 70%);
+	animation: minghat-twinkle-b 12s ease-in-out infinite;
+}
+@keyframes minghat-twinkle-a {
+	0%, 100% { opacity: 0.28; transform: translate3d(0, 0, 0); }
+	50% { opacity: 0.8; transform: translate3d(20px, -16px, 0); }
+}
+@keyframes minghat-twinkle-b {
+	0%, 100% { opacity: 1; transform: translate3d(0, 0, 0); }
+	50% { opacity: 0.35; transform: translate3d(-20px, 16px, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+	html.dark #chat-pane::before,
+	html.dark #chat-pane::after {
+		animation: none;
+		transform: none;
+		opacity: 0.4;
+	}
+}
+
+/* MingHat: "Hat" roxo no nome do sidebar (igual ao titulo grande) */
+#sidebar-webui-name .minghat-hat { color: #c29aff; font-weight: 600; }
+html.light #sidebar-webui-name .minghat-hat { color: #7735c1; }
