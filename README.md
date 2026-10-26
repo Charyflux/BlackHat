@@ -1,92 +1,236 @@
-# BlackHat (MingHat)
+<div align="center">
 
-IA de **cibersegurança, pentest e programação sem filtro**, em português do Brasil, construída sobre um fork do [Open WebUI](https://github.com/open-webui/open-webui) com modelos locais via [Ollama](https://ollama.com) e um pipeline próprio de **recon** (reconhecimento de alvos autorizados).
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,24&height=210&section=header&text=BlackHat&fontSize=72&fontColor=c29aff&animation=fadeIn&fontAlignY=36&desc=IA%20de%20Pentest%2C%20Hacking%20e%20Programacao%20SEM%20FILTRO&descAlignY=56&descSize=18" alt="BlackHat" />
 
-> ⚠️ **Uso autorizado.** A BlackHat é voltada para testes de segurança em ambientes próprios, laboratórios, CTF e programas de bug bounty **com permissão**. Use com responsabilidade e dentro da lei.
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&weight=600&size=22&duration=3000&pause=800&color=C29AFF&center=true&vCenter=true&width=640&lines=IA+sem+censura%2C+em+portugu%C3%AAs+do+Brasil;Pentest+%2B+Recon+automatizado;Programa%C3%A7%C3%A3o+n%C3%ADvel+s%C3%AAnior;Roda+no+SEU+servidor%2C+sem+API+externa" alt="typing" />
 
----
+<br/>
 
-## Índice
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![SvelteKit](https://img.shields.io/badge/SvelteKit-FF3E00?style=for-the-badge&logo=svelte&logoColor=white)
+![Linux](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
 
-1. [O que é / arquitetura](#1-o-que-é--arquitetura)
-2. [Requisitos](#2-requisitos)
-3. [Instalação passo a passo](#3-instalação-passo-a-passo)
-4. [Variáveis de ambiente](#4-variáveis-de-ambiente)
-5. [Serviço systemd (rodar 24h)](#5-serviço-systemd-rodar-24h)
-6. [Domínio e HTTPS (Cloudflare Tunnel)](#6-domínio-e-https-cloudflare-tunnel)
-7. [E-mail transacional (Brevo/SMTP)](#7-e-mail-transacional-brevosmtp)
-8. [Webhooks de pagamento (Cakto / Stripe)](#8-webhooks-de-pagamento-cakto--stripe)
-9. [Painel admin](#9-painel-admin)
-10. [Primeiro usuário admin](#10-primeiro-usuário-admin)
-11. [Manutenção (rebuild / logs / restart)](#11-manutenção-rebuild--logs--restart)
-12. [Segurança](#12-segurança)
+![Status](https://img.shields.io/badge/status-produção-brightgreen?style=flat-square)
+![Licença](https://img.shields.io/badge/base-Open%20WebUI%20(BSD--3)-blue?style=flat-square)
+![PT-BR](https://img.shields.io/badge/idioma-PT--BR-9b59b6?style=flat-square)
+
+</div>
 
 ---
 
-## 1. O que é / arquitetura
-
-- **Frontend + Backend:** fork do Open WebUI (SvelteKit compilado + FastAPI), empacotado em **uma única imagem Docker** (`blackhat:latest`).
-- **Modelos de IA:** rodam no **Ollama no host** (CPU ou GPU). Dois modelos padrão:
-  - `dolphin-llama3:latest` → exibido como **BlackHat** (8B, sem censura)
-  - `huihui_ai/llama3.2-abliterate:3b` → exibido como **BlackHat Rápido** (3B, mais rápido)
-- **Prompt do sistema:** injetado no servidor (`backend/open_webui/utils/middleware.py`) para TODOS os usuários — estilo hacker, sem recusa, com painel de "pensamento" (`<think>`) ao vivo.
-- **Recon:** pipeline próprio (`backend/open_webui/utils/minghat_recon.py`) usando ferramentas externas (subfinder, dnsx, httpx, katana, gau) montadas em `/app/recon-tools`.
-- **Pagamentos:** webhooks de **Cakto** e **Stripe** liberam o e-mail do comprador numa allowlist e disparam e-mail de boas-vindas.
-- **Acesso externo:** via **Cloudflare Tunnel** (sem abrir portas no firewall).
-
-```
-Internet ──► Cloudflare Tunnel ──► 127.0.0.1:8080 (container blackhat)
-                                         │
-                                         ├─► Ollama (host:11434)  ← modelos
-                                         ├─► /app/recon-tools      ← subfinder/dnsx/httpx/gau
-                                         └─► volume blackhat-data  ← DB, chave, assinantes
-```
+> ### ⚠️ Aviso de uso responsável
+> A **BlackHat** é voltada a testes de segurança em ambientes **autorizados**: seus próprios sistemas, laboratórios, CTFs e programas de **bug bounty com permissão**. Você é o único responsável pelo uso. **Não use contra alvos sem autorização.**
 
 ---
 
-## 2. Requisitos
+## 📑 Índice
 
-| Item | Mínimo recomendado |
+- [🎯 O que é](#-o-que-é)
+- [🧩 Como funciona (arquitetura)](#-como-funciona-arquitetura)
+- [💻 Requisitos de hardware (potência)](#-requisitos-de-hardware-potência)
+- [🖥️ Sistemas operacionais suportados](#️-sistemas-operacionais-suportados)
+- [📦 O que você precisa instalar (pré-requisitos)](#-o-que-você-precisa-instalar-pré-requisitos)
+- [🚀 Instalação passo a passo](#-instalação-passo-a-passo)
+  - [Passo 1 — Preparar o servidor](#passo-1--preparar-o-servidor)
+  - [Passo 2 — Instalar o Docker](#passo-2--instalar-o-docker)
+  - [Passo 3 — Instalar o Ollama + baixar os modelos](#passo-3--instalar-o-ollama--baixar-os-modelos)
+  - [Passo 4 — Baixar o código da BlackHat](#passo-4--baixar-o-código-da-blackhat)
+  - [Passo 5 — Instalar as ferramentas de recon](#passo-5--instalar-as-ferramentas-de-recon)
+  - [Passo 6 — Buildar a imagem Docker](#passo-6--buildar-a-imagem-docker)
+  - [Passo 7 — Criar o arquivo de segredos](#passo-7--criar-o-arquivo-de-segredos)
+  - [Passo 8 — Subir e testar](#passo-8--subir-e-testar)
+  - [Passo 9 — Rodar 24h (systemd)](#passo-9--rodar-24h-systemd)
+  - [Passo 10 — Criar o admin e usar](#passo-10--criar-o-admin-e-usar)
+- [🌐 Deixar online com domínio e HTTPS](#-deixar-online-com-domínio-e-https)
+- [📧 E-mail transacional (opcional)](#-e-mail-transacional-opcional)
+- [💳 Webhooks de pagamento (opcional)](#-webhooks-de-pagamento-opcional)
+- [🛠️ Manutenção do dia a dia](#️-manutenção-do-dia-a-dia)
+- [🩺 Solução de problemas](#-solução-de-problemas)
+- [🔐 Segurança](#-segurança)
+- [📂 Estrutura do projeto](#-estrutura-do-projeto)
+- [❓ FAQ](#-faq)
+
+---
+
+## 🎯 O que é
+
+A **BlackHat** é uma IA de **cibersegurança, pentest e programação sem censura**, em português do Brasil, que roda **no seu próprio servidor** — sem depender de ChatGPT, Gemini ou qualquer API externa. É um fork do [Open WebUI](https://github.com/open-webui/open-webui) com personalizações próprias.
+
+| Recurso | Descrição |
 |---|---|
-| **SO** | Ubuntu 22.04/24.04 (ou similar) |
-| **RAM** | **16 GB+** (8 GB roda apertado; o build do frontend consome bastante) |
-| **CPU** | 4+ vCPUs (modelos rodam em CPU por padrão) |
-| **Disco** | 30 GB+ livres (imagem ~7 GB + modelos Q4) |
-| **Docker** | Engine 24+ |
-| **Ollama** | instalado no host |
-| **Node** | só para desenvolvimento local (o build acontece dentro do Docker) |
-
-> 💡 Em VPS de 8–11 GB, pare o Ollama antes de buildar (`ollama stop <modelo>`) para liberar RAM e evitar OOM.
+| 🔓 **Sem filtro** | Responde direto, sem recusas nem sermão. Entrega código, comandos e payloads completos. |
+| 🕵️ **Modo Recon** | Pipeline próprio de reconhecimento (subdomínios, DNS, serviços web, crawl de URLs). |
+| 🧠 **Pensamento ao vivo** | Mostra o raciocínio sendo construído antes da resposta (painel `<think>`). |
+| 💻 **Código nível sênior** | Programação, debugging e arquitetura em qualquer linguagem. |
+| 🇧🇷 **Português impecável** | Treinada para gramática e clareza. |
+| 🏠 **100% no seu servidor** | Modelos locais via Ollama. Seus dados não saem da sua máquina. |
 
 ---
 
-## 3. Instalação passo a passo
+## 🧩 Como funciona (arquitetura)
 
-### 3.1. Clonar o repositório
+```
+                    ┌─────────────────────────────┐
+  Internet ──HTTPS──►  Cloudflare Tunnel (opcional) │
+                    └──────────────┬──────────────┘
+                                   │ 127.0.0.1:8080
+                    ┌──────────────▼──────────────┐
+                    │   Container Docker  (blackhat)│
+                    │   Open WebUI (Svelte + API)   │
+                    └───┬───────────────┬──────────┘
+                        │               │
+            host:11434  │               │  /app/recon-tools
+                    ┌───▼────┐     ┌─────▼─────────────────┐
+                    │ Ollama │     │ subfinder / dnsx /     │
+                    │ modelos│     │ httpx / katana / gau   │
+                    └────────┘     └────────────────────────┘
+                        │
+                 volume "blackhat-data"  (DB, chave, assinantes)
+```
+
+- **Frontend + Backend:** empacotados em **uma única imagem Docker** (`blackhat:latest`).
+- **Modelos de IA:** rodam no **Ollama no host** (CPU ou GPU).
+- **Recon:** binários externos montados em `/app/recon-tools`.
+- **Dados:** ficam num **volume Docker** (`blackhat-data`), nunca dentro do código.
+
+---
+
+## 💻 Requisitos de hardware (potência)
+
+Os modelos de IA rodam **localmente** — então a RAM/CPU definem a velocidade. Abaixo o que você precisa:
+
+| Componente | 🟡 Mínimo (funciona, mais lento) | 🟢 Recomendado | 🔵 Ideal (rápido) |
+|---|---|---|---|
+| **CPU** | 4 vCPUs | 8 vCPUs | 8+ vCPUs ou GPU NVIDIA |
+| **RAM** | 8 GB | **16 GB** | 32 GB |
+| **Disco (SSD)** | 30 GB livres | 50 GB | 80 GB+ |
+| **GPU** | não precisa (roda em CPU) | opcional | NVIDIA 8 GB+ VRAM (CUDA) |
+| **Internet** | 10 Mbps (só pra baixar) | 100 Mbps | — |
+
+### Quanto cada coisa ocupa
+| Item | Tamanho aproximado |
+|---|---|
+| Imagem Docker `blackhat` | ~7 GB |
+| Modelo `dolphin-llama3` (8B, Q4) | ~4,7 GB |
+| Modelo `llama3.2-abliterate` (3B, Q4) | ~2 GB |
+| Ferramentas de recon | ~200 MB |
+
+> 💡 **Importante sobre RAM:** o modelo 8B consome ~6 GB de RAM carregado. Em servidores de 8 GB, **pare o Ollama antes de buildar a imagem** (o build do frontend também come RAM) para não dar *Out Of Memory*. Com 16 GB você roda tudo tranquilo.
+>
+> ⚡ **GPU acelera muito:** se tiver uma NVIDIA, as respostas ficam vários segundos mais rápidas. Sem GPU funciona bem em CPU, só mais devagar.
+
+---
+
+## 🖥️ Sistemas operacionais suportados
+
+| SO | Suporte | Observação |
+|---|---|---|
+| 🐧 **Ubuntu 22.04 / 24.04 LTS** | ✅ **Recomendado** | Melhor compatibilidade, é o usado em produção. |
+| 🐧 **Debian 12** | ✅ Total | Funciona igual ao Ubuntu. |
+| 🐧 Outras distros Linux (com Docker + systemd) | ✅ | Fedora, Rocky, Alma, etc. |
+| 🪟 **Windows 10/11** | ⚠️ Via WSL2 + Docker Desktop | Bom para testar; produção use Linux. |
+| 🍎 **macOS** (Intel/Apple Silicon) | ⚠️ Docker Desktop + Ollama nativo | Para desenvolvimento/testes. |
+
+> Para **produção** (vender/disponibilizar 24h), use um **VPS Linux** (Ubuntu). Provedores comuns: Contabo, Hetzner, DigitalOcean, Vultr, AWS.
+
+---
+
+## 📦 O que você precisa instalar (pré-requisitos)
+
+Antes de começar, estes são os programas que o passo a passo vai instalar:
+
+| Programa | Para quê | Instalado no passo |
+|---|---|---|
+| **Git** | Baixar o código do GitHub | Passo 1 |
+| **Docker** | Rodar a aplicação em container | Passo 2 |
+| **Ollama** | Rodar os modelos de IA localmente | Passo 3 |
+| **Modelos** (dolphin-llama3, llama3.2-abliterate) | O "cérebro" da IA | Passo 3 |
+| **Ferramentas de recon** (subfinder, dnsx, httpx, katana, gau) | Reconhecimento de alvos | Passo 5 |
+
+Tudo é gratuito e open-source. Não precisa de chave de API de ninguém.
+
+---
+
+## 🚀 Instalação passo a passo
+
+> 📋 Os comandos abaixo são para **Ubuntu/Debian**. Rode como `root` ou com `sudo`.
+
+### Passo 1 — Preparar o servidor
+
+Atualize o sistema e instale utilitários básicos (incluindo o Git):
 
 ```bash
-git clone https://github.com/Charyflux/minghat.git
-cd minghat
+sudo apt update && sudo apt upgrade -y
+sudo apt install -y git curl wget unzip
 ```
 
-### 3.2. Instalar Docker
+Confirme que o Git foi instalado:
+
+```bash
+git --version
+# deve aparecer algo como: git version 2.43.0
+```
+
+---
+
+### Passo 2 — Instalar o Docker
+
+O Docker roda a aplicação em um "container" isolado. Instalação oficial:
 
 ```bash
 curl -fsSL https://get.docker.com | sh
 sudo systemctl enable --now docker
 ```
 
-### 3.3. Instalar Ollama e baixar os modelos
+Teste:
+
+```bash
+sudo docker run --rm hello-world
+# se aparecer "Hello from Docker!" está funcionando
+```
+
+<details>
+<summary>🔧 (Opcional) Rodar docker sem sudo</summary>
+
+```bash
+sudo usermod -aG docker $USER
+# saia e entre de novo na sessão (logout/login) para valer
+```
+</details>
+
+---
+
+### Passo 3 — Instalar o Ollama + baixar os modelos
+
+O **Ollama** é quem roda os modelos de IA. Instalação oficial:
 
 ```bash
 curl -fsSL https://ollama.com/install.sh | sh
+```
 
-# Modelos padrão da BlackHat:
+Baixe os **dois modelos** da BlackHat (vão ~7 GB no total):
+
+```bash
+# Modelo principal — "BlackHat" (8B, sem censura)
 ollama pull dolphin-llama3:latest
+
+# Modelo rápido — "BlackHat Rápido" (3B)
 ollama pull huihui_ai/llama3.2-abliterate:3b
 ```
 
-Ajuste do Ollama (opcional, recomendado em RAM limitada) — em `/etc/systemd/system/ollama.service.d/override.conf`:
+Confira que baixaram:
+
+```bash
+ollama list
+# devem aparecer os dois modelos na lista
+```
+
+<details>
+<summary>⚙️ (Recomendado) Ajustar o Ollama para RAM limitada</summary>
+
+Crie `/etc/systemd/system/ollama.service.d/override.conf`:
 
 ```ini
 [Service]
@@ -95,48 +239,104 @@ Environment="OLLAMA_NUM_PARALLEL=1"
 Environment="OLLAMA_KEEP_ALIVE=30m"
 ```
 
+Aplique:
+
 ```bash
 sudo systemctl daemon-reload && sudo systemctl restart ollama
 ```
 
-### 3.4. Instalar as ferramentas de recon
+Isso mantém só 1 modelo na RAM por vez, evitando estouro de memória.
+</details>
 
-Baixe os binários do [ProjectDiscovery](https://github.com/projectdiscovery) e o [gau](https://github.com/lc/gau), e coloque-os numa pasta no host (ex.: `/opt/blackhat-recon-tools`):
+---
+
+### Passo 4 — Baixar o código da BlackHat
+
+```bash
+cd /root
+git clone https://github.com/Charyflux/minghat.git
+cd minghat
+```
+
+> Se o repositório estiver **privado**, o `git clone` vai pedir login no GitHub.
+
+---
+
+### Passo 5 — Instalar as ferramentas de recon
+
+O modo Recon usa 5 ferramentas. Baixe os binários e coloque numa pasta no host:
 
 ```bash
 sudo mkdir -p /opt/blackhat-recon-tools
-# Exemplo (ajuste as versões/arquitetura):
-#   subfinder, dnsx, httpx, katana  → github.com/projectdiscovery/*/releases
-#   gau                             → github.com/lc/gau/releases
-# Descompacte cada binário dentro de /opt/blackhat-recon-tools e dê permissão:
-sudo chmod +x /opt/blackhat-recon-tools/*
+cd /opt/blackhat-recon-tools
 ```
 
-Essa pasta é montada no container como `/app/recon-tools` (read-only).
+Baixe cada uma (ajuste a versão/arquitetura conforme o site de releases):
 
-### 3.5. Buildar a imagem
+- **subfinder**, **dnsx**, **httpx**, **katana** → [github.com/projectdiscovery](https://github.com/projectdiscovery) (cada um tem releases)
+- **gau** → [github.com/lc/gau/releases](https://github.com/lc/gau/releases)
+
+Exemplo para `subfinder` (repita para os outros, trocando o nome/URL):
 
 ```bash
-# (em RAM limitada, libere o Ollama antes)
+wget https://github.com/projectdiscovery/subfinder/releases/latest/download/subfinder_linux_amd64.zip
+unzip subfinder_linux_amd64.zip && rm subfinder_linux_amd64.zip
+```
+
+No fim, dê permissão de execução a todos:
+
+```bash
+sudo chmod +x /opt/blackhat-recon-tools/*
+ls -la /opt/blackhat-recon-tools
+# devem aparecer: subfinder  dnsx  httpx  katana  gau
+```
+
+---
+
+### Passo 6 — Buildar a imagem Docker
+
+Isso compila o frontend e monta a imagem (`blackhat:latest`). **Pode demorar alguns minutos.**
+
+```bash
+cd /root/minghat
+
+# Em servidores com pouca RAM, libere memória antes:
 ollama stop dolphin-llama3:latest 2>/dev/null
 ollama stop huihui_ai/llama3.2-abliterate:3b 2>/dev/null
 
+# Buildar
 docker build -t blackhat:latest .
 ```
 
-### 3.6. Criar o arquivo de segredos
+Ao terminar, confira:
 
-Os segredos **nunca** ficam no repositório. Crie `/etc/blackhat-smtp.env` (permissão 600):
+```bash
+docker images blackhat:latest
+# deve listar a imagem (~7 GB)
+```
+
+---
+
+### Passo 7 — Criar o arquivo de segredos
+
+Os segredos **nunca** ficam no código. Crie `/etc/blackhat-smtp.env` (permissão restrita):
 
 ```bash
 sudo sh -c 'umask 077; cat > /etc/blackhat-smtp.env' <<'EOF'
-MINGHAT_SMTP_PASSWORD=coloque_a_senha_do_smtp_aqui
-CAKTO_WEBHOOK_SECRET=coloque_o_secret_da_cakto
-STRIPE_WEBHOOK_SECRET=coloque_o_whsec_da_stripe
+# Preencha só o que for usar. Pode deixar em branco para começar.
+MINGHAT_SMTP_PASSWORD=
+CAKTO_WEBHOOK_SECRET=
+STRIPE_WEBHOOK_SECRET=
 EOF
 ```
 
-### 3.7. Subir o container (teste rápido)
+> Para só **testar a IA**, pode deixar tudo em branco. E-mail e pagamentos são opcionais (passos mais abaixo).
+
+---
+
+### Passo 8 — Subir e testar
+
+Rode o container (teste rápido, em primeiro plano):
 
 ```bash
 docker run --rm --name blackhat \
@@ -146,44 +346,31 @@ docker run --rm --name blackhat \
   -e OLLAMA_BASE_URL=http://host.docker.internal:11434 \
   -e WEBUI_NAME=BlackHat \
   -e DEFAULT_MODELS=dolphin-llama3:latest \
+  -e DEFAULT_LOCALE=pt-BR \
+  -e WEBUI_AUTH=True \
+  -e ENABLE_SIGNUP=True \
   -e BYPASS_MODEL_ACCESS_CONTROL=true \
+  -e MINGHAT_RECON_TOOLS_DIR=/app/recon-tools \
+  -e SUBFINDER_PATH=/app/recon-tools/subfinder \
+  -e DNSX_PATH=/app/recon-tools/dnsx \
+  -e HTTPX_PATH=/app/recon-tools/httpx \
+  -e KATANA_PATH=/app/recon-tools/katana \
+  -e GAU_PATH=/app/recon-tools/gau \
   -v blackhat-data:/app/backend/data \
   -v /opt/blackhat-recon-tools:/app/recon-tools:ro \
   blackhat:latest
 ```
 
-Acesse `http://127.0.0.1:8080`. Funcionou? Pare (Ctrl+C) e configure o serviço systemd (passo 5) para rodar 24h.
+Abra no navegador: **http://127.0.0.1:8080**
+(se for VPS remoto, use túnel SSH: `ssh -L 8080:127.0.0.1:8080 root@SEU_IP` e abra `http://localhost:8080`)
+
+Funcionou? Pressione **Ctrl+C** para parar e vá para o Passo 9 (rodar 24h).
 
 ---
 
-## 4. Variáveis de ambiente
+### Passo 9 — Rodar 24h (systemd)
 
-| Variável | Valor | Para quê |
-|---|---|---|
-| `WEBUI_NAME` | `BlackHat` | Nome exibido na interface |
-| `OLLAMA_BASE_URL` | `http://host.docker.internal:11434` | Onde o Ollama responde |
-| `DEFAULT_MODELS` | `dolphin-llama3:latest` | Modelo padrão |
-| `DEFAULT_LOCALE` | `pt-BR` | Idioma padrão |
-| `WEBUI_AUTH` | `True` | Exige login |
-| `ENABLE_SIGNUP` | `True` | Permite cadastro (gated pela allowlist de assinantes) |
-| `BYPASS_MODEL_ACCESS_CONTROL` | `true` | Todos os usuários veem os modelos |
-| `WEBUI_SECRET_KEY_FILE` | `/app/backend/data/.webui_secret_key` | Chave JWT (gerada no 1º boot) |
-| `MINGHAT_RECON_TOOLS_DIR` | `/app/recon-tools` | Pasta das ferramentas de recon |
-| `SUBFINDER_PATH` / `DNSX_PATH` / `HTTPX_PATH` / `KATANA_PATH` / `GAU_PATH` | `/app/recon-tools/<bin>` | Caminho de cada binário |
-| `MINGHAT_SMTP_HOST` | `smtp-relay.brevo.com` | Servidor SMTP |
-| `MINGHAT_SMTP_PORT` | `587` | Porta SMTP |
-| `MINGHAT_SMTP_USER` | `<usuario-brevo>` | Usuário SMTP |
-| `MINGHAT_SMTP_FROM` | `noreply@seudominio` | Remetente |
-| `MINGHAT_SMTP_PASSWORD` | *(no arquivo de segredos)* | Senha SMTP |
-| `MINGHAT_SIGNUP_URL` | `https://seudominio/auth?mode=signup` | Link do e-mail de boas-vindas |
-| `CAKTO_WEBHOOK_SECRET` | *(no arquivo de segredos)* | Valida webhook da Cakto |
-| `STRIPE_WEBHOOK_SECRET` | *(no arquivo de segredos)* | Valida webhook da Stripe (`whsec_...`) |
-
-> Os caminhos internos e os IDs dos modelos são configuráveis; os nomes exibidos (BlackHat / BlackHat Rápido) ficam em `scripts/configure-minghat-models.py`.
-
----
-
-## 5. Serviço systemd (rodar 24h)
+Para a BlackHat ficar sempre no ar (e reiniciar sozinha), crie o serviço.
 
 Crie `/etc/systemd/system/blackhat.service`:
 
@@ -209,19 +396,12 @@ ExecStart=/usr/bin/docker run --rm --name blackhat \
   -e DEFAULT_LOCALE=pt-BR \
   -e WEBUI_AUTH=True -e ENABLE_SIGNUP=True \
   -e BYPASS_MODEL_ACCESS_CONTROL=true \
-  -e WEBUI_SECRET_KEY_FILE=/app/backend/data/.webui_secret_key \
   -e MINGHAT_RECON_TOOLS_DIR=/app/recon-tools \
   -e SUBFINDER_PATH=/app/recon-tools/subfinder \
   -e DNSX_PATH=/app/recon-tools/dnsx \
   -e HTTPX_PATH=/app/recon-tools/httpx \
   -e KATANA_PATH=/app/recon-tools/katana \
   -e GAU_PATH=/app/recon-tools/gau \
-  -e MINGHAT_SIGNUP_URL=https://seudominio/auth?mode=signup \
-  -e MINGHAT_SMTP_HOST=smtp-relay.brevo.com \
-  -e MINGHAT_SMTP_PORT=587 \
-  -e MINGHAT_SMTP_USER=seu_usuario_brevo \
-  -e MINGHAT_SMTP_FROM=noreply@seudominio \
-  -e MINGHAT_SMTP_USE_TLS=true \
   -e MINGHAT_SMTP_PASSWORD \
   -e CAKTO_WEBHOOK_SECRET \
   -e STRIPE_WEBHOOK_SECRET \
@@ -233,27 +413,43 @@ ExecStart=/usr/bin/docker run --rm --name blackhat \
 WantedBy=multi-user.target
 ```
 
+Ative:
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now blackhat
-sudo systemctl status blackhat
+sudo systemctl status blackhat     # deve aparecer "active (running)"
 ```
 
 ---
 
-## 6. Domínio e HTTPS (Cloudflare Tunnel)
+### Passo 10 — Criar o admin e usar
+
+1. Abra a BlackHat no navegador.
+2. Clique em **Inscrever-se** e crie sua conta.
+3. **O primeiro usuário vira ADMIN automaticamente.** 🎉
+4. Escolha o modelo **BlackHat** (ou **BlackHat Rápido**) e comece a usar.
+
+Pronto — a IA está rodando no seu servidor!
+
+---
+
+## 🌐 Deixar online com domínio e HTTPS
+
+Para acessar por um domínio (ex.: `seudominio.com`) com HTTPS, sem abrir portas no firewall, use o **Cloudflare Tunnel**:
 
 ```bash
-# Instala o cloudflared
+# Instalar cloudflared
 curl -L https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64 \
   -o /usr/local/bin/cloudflared && chmod +x /usr/local/bin/cloudflared
 
+# Autenticar e criar o túnel
 cloudflared tunnel login
 cloudflared tunnel create blackhat
 cloudflared tunnel route dns blackhat seudominio.com
 ```
 
-`/etc/cloudflared/config.yml`:
+Crie `/etc/cloudflared/config.yml`:
 
 ```yaml
 tunnel: <ID-DO-TUNEL>
@@ -264,83 +460,59 @@ ingress:
   - service: http_status:404
 ```
 
+Instale como serviço:
+
 ```bash
 cloudflared service install
 sudo systemctl enable --now cloudflared
 ```
 
----
-
-## 7. E-mail transacional (Brevo/SMTP)
-
-1. Crie conta no [Brevo](https://www.brevo.com) → **SMTP & API** → pegue o usuário e a senha SMTP.
-2. **Autorize o IP do VPS** em Brevo (senão dá erro `525 Unauthorized IP`).
-3. Preencha `MINGHAT_SMTP_*` (senha no `/etc/blackhat-smtp.env`).
-4. Verifique o domínio remetente (SPF/DKIM) para não cair em spam.
-
-O e-mail de boas-vindas é enviado em `backend/open_webui/utils/minghat_mail.py`.
+Acesse `https://seudominio.com` 🎉
 
 ---
 
-## 8. Webhooks de pagamento (Cakto / Stripe)
+## 📧 E-mail transacional (opcional)
 
-Os dois compartilham a mesma allowlist (`backend/data/minghat_subscribers.json`), que libera o cadastro do comprador.
+Para enviar e-mail de boas-vindas (ex.: após uma venda), configure um SMTP (ex.: [Brevo](https://www.brevo.com), grátis até 300 e-mails/dia):
 
-### Cakto
-- Endpoint: `https://seudominio/api/minghat/cakto/webhook`
-- Secret em `CAKTO_WEBHOOK_SECRET`.
-
-### Stripe
-- Crie um **Payment Link** do seu produto.
-- Webhook: `https://seudominio/api/minghat/stripe/webhook`
-- Eventos: `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.deleted`.
-- Copie o **Signing secret** (`whsec_...`) para `STRIPE_WEBHOOK_SECRET` e reinicie o serviço.
-- A verificação da assinatura é feita na mão (HMAC-SHA256) em `backend/open_webui/routers/minghat_stripe.py` — sem dependência da lib `stripe`.
-
-> As rotas internas usam o prefixo `/api/minghat/...` por compatibilidade. **Não renomeie** para não quebrar os webhooks já configurados.
+1. Crie a conta no Brevo → **SMTP & API** → pegue usuário e senha SMTP.
+2. **Autorize o IP do seu servidor** no Brevo (senão dá erro `525`).
+3. Adicione ao serviço (passo 9) as variáveis `MINGHAT_SMTP_HOST`, `MINGHAT_SMTP_PORT`, `MINGHAT_SMTP_USER`, `MINGHAT_SMTP_FROM` e coloque a senha em `/etc/blackhat-smtp.env`.
 
 ---
 
-## 9. Painel admin
+## 💳 Webhooks de pagamento (opcional)
 
-Dashboard separado (lista de usuários, assinantes, reset de senha, bloqueio), disponível em `minghat-admin/`. Rode em `127.0.0.1` (privado), atrás de Basic Auth:
+Se for **vender assinaturas**, a BlackHat libera automaticamente o acesso do comprador via webhook (Cakto e Stripe suportados).
+
+<details>
+<summary>Ver configuração de Cakto e Stripe</summary>
+
+**Cakto** → endpoint `https://seudominio/api/minghat/cakto/webhook`, secret em `CAKTO_WEBHOOK_SECRET`.
+
+**Stripe** → crie um Payment Link, webhook `https://seudominio/api/minghat/stripe/webhook`, eventos `checkout.session.completed`, `invoice.paid`, `invoice.payment_failed`, `customer.subscription.deleted`. Copie o `whsec_...` para `STRIPE_WEBHOOK_SECRET`.
+
+Os dois compartilham a mesma allowlist, que gate o cadastro do comprador. **Não renomeie** as rotas `/api/minghat/...` para não quebrar os webhooks.
+</details>
+
+---
+
+## 🛠️ Manutenção do dia a dia
 
 ```bash
-cd minghat-admin
-docker build -t blackhat-admin:latest .
-docker run -d --name blackhat-admin --restart always \
-  -p 127.0.0.1:8890:8888 \
-  -e ADMIN_DASH_USER=seu_usuario \
-  -e ADMIN_DASH_PASSWORD=sua_senha_forte \
-  -v blackhat-data:/data:ro \
-  blackhat-admin:latest
-```
-
-Acesse via túnel SSH: `ssh -L 8890:127.0.0.1:8890 root@SEU_VPS` e abra `http://localhost:8890`.
-
----
-
-## 10. Primeiro usuário admin
-
-O **primeiro usuário que se cadastrar** vira admin automaticamente. Acesse `https://seudominio/auth?mode=signup` e crie sua conta.
-
-Para redefinir a senha do admin depois, use o painel admin (passo 9) ou o script em `scripts/`.
-
----
-
-## 11. Manutenção (rebuild / logs / restart)
-
-```bash
-# Rebuild após mudanças no código (libere RAM antes se necessário)
-cd /caminho/para/minghat
-docker build -t blackhat:latest .
-sudo systemctl restart blackhat
-
-# Logs
+# Ver logs em tempo real
 docker logs -f blackhat
 
-# Status de saúde
+# Ver se está saudável
 docker inspect -f '{{.State.Health.Status}}' blackhat
+
+# Reiniciar
+sudo systemctl restart blackhat
+
+# Atualizar após mudar o código
+cd /root/minghat && git pull
+docker build -t blackhat:latest .
+sudo systemctl restart blackhat
 
 # Liberar RAM do Ollama
 ollama stop dolphin-llama3:latest
@@ -348,16 +520,99 @@ ollama stop dolphin-llama3:latest
 
 ---
 
-## 12. Segurança
+## 🩺 Solução de problemas
 
-- **Nunca** commite segredos. Eles ficam em `/etc/blackhat-smtp.env` e no volume `blackhat-data` (ambos fora do repo — veja o `.gitignore`).
-- Container exposto só em `127.0.0.1`; o acesso externo passa pelo Cloudflare Tunnel.
-- Painel admin **privado** (127.0.0.1 + Basic Auth + túnel SSH).
-- Mantenha SSH com chave (desative senha), `fail2ban` ativo e o firewall fechado.
-- Dados de clientes (e-mails/telefones) vivem só no volume `blackhat-data`, nunca no Git.
+<details>
+<summary>❌ O build falha / trava (Out Of Memory)</summary>
+
+Falta de RAM durante o `docker build`. Pare os modelos antes:
+```bash
+ollama stop dolphin-llama3:latest
+ollama stop huihui_ai/llama3.2-abliterate:3b
+docker build -t blackhat:latest .
+```
+Se persistir, aumente a RAM do servidor ou crie swap.
+</details>
+
+<details>
+<summary>❌ A IA não responde / fica "pensando"</summary>
+
+- Confira se o Ollama está rodando: `ollama ps`
+- Confira se os modelos foram baixados: `ollama list`
+- Veja os logs: `docker logs -f blackhat`
+- O primeiro carregamento do modelo demora (ele é carregado na RAM).
+</details>
+
+<details>
+<summary>❌ Não aparece nenhum modelo para o usuário</summary>
+
+Certifique-se de que `BYPASS_MODEL_ACCESS_CONTROL=true` está no serviço (passo 9) e reinicie.
+</details>
+
+<details>
+<summary>❌ Recon não retorna nada</summary>
+
+Verifique se os binários existem e têm permissão em `/opt/blackhat-recon-tools` e se os caminhos (`SUBFINDER_PATH`, etc.) estão corretos no serviço.
+</details>
 
 ---
 
-## Créditos
+## 🔐 Segurança
 
-Construído sobre o [Open WebUI](https://github.com/open-webui/open-webui) (licença BSD-3). Ferramentas de recon: [ProjectDiscovery](https://github.com/projectdiscovery) e [gau](https://github.com/lc/gau).
+- **Nunca** coloque segredos no Git. Eles ficam em `/etc/blackhat-smtp.env` e no volume `blackhat-data` (ambos fora do repositório — veja o `.gitignore`).
+- O container é exposto só em `127.0.0.1`; o acesso externo passa pelo Cloudflare Tunnel.
+- Use **SSH com chave** (desative login por senha) e mantenha o firewall fechado.
+- Instale **fail2ban** para barrar ataques de força bruta.
+- Dados de clientes (e-mails/telefones) vivem só no volume `blackhat-data`, **nunca no Git**.
+
+---
+
+## 📂 Estrutura do projeto
+
+```
+minghat/
+├── backend/open_webui/        # Backend FastAPI
+│   ├── utils/middleware.py     # Prompt do sistema + injeções da BlackHat
+│   ├── utils/minghat_recon.py  # Pipeline de recon
+│   ├── utils/minghat_mail.py   # E-mail de boas-vindas
+│   └── routers/                # Webhooks Cakto / Stripe
+├── src/                        # Frontend SvelteKit
+│   └── lib/components/          # UI (paywall, vitrine, sidebar...)
+├── scripts/                    # Scripts de configuração/boot
+├── Dockerfile                  # Build da imagem
+└── README.md                   # Este arquivo
+```
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary>Preciso de GPU?</summary>
+Não. Roda em CPU. GPU (NVIDIA) só deixa as respostas mais rápidas.
+</details>
+
+<details>
+<summary>Preciso pagar API da OpenAI/Google?</summary>
+Não. Os modelos rodam localmente via Ollama. Zero custo de API.
+</details>
+
+<details>
+<summary>Funciona no Windows?</summary>
+Para testar, sim (WSL2 + Docker Desktop). Para produção 24h, use um VPS Linux.
+</details>
+
+<details>
+<summary>Quanto de RAM eu realmente preciso?</summary>
+8 GB funciona (mais lento). 16 GB é o recomendado para rodar confortável.
+</details>
+
+---
+
+<div align="center">
+
+**Construído sobre o [Open WebUI](https://github.com/open-webui/open-webui) (BSD-3)** · Recon por [ProjectDiscovery](https://github.com/projectdiscovery) e [gau](https://github.com/lc/gau)
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=12,20,24&height=100&section=footer" alt="footer" />
+
+</div>
